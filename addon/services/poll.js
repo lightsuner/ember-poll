@@ -1,5 +1,5 @@
 import Service from '@ember/service';
-import { bind } from '@ember/runloop';
+import { bind, run } from '@ember/runloop';
 import { A as emberArray } from '@ember/array';
 
 export default Service.extend({
@@ -11,11 +11,15 @@ export default Service.extend({
     this.stopAll();
   },
 
-  addPoll({interval, callback, label}) {
+  addPoll({interval, callback, label, immediate}) {
     if (interval <= 1) {
       throw new Error('Polling interval must be greater than 1');
     }
 
+    if (immediate) {
+      run(this, callback);
+    }
+    
     let handle = this._schedule(callback, interval);
     let poll = { handle, callback, interval };
     if (label) {
